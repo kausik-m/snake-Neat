@@ -5,18 +5,22 @@ import math
 import neat
 vec = pg.math.Vector2
 
-win_nets = {}
-highscore = 0
+# colours
+black = (0, 0, 0)
+red   = (255, 0, 0)
+
+win_nets     = {}
+highscore    = 0
 genHighscore = 0
-gen = 0
-rows = 40
-width = 400 
-total_width = 1200
-height = 800
+gen          = 0
+rows         = 20 # width of each cube
+width        = 400 # as well as height
+total_width  = 1200
+total_height = 800
 pg.init()
 pg.display.set_caption("Snake AI")
 
-STAT_FONT = pg.font.SysFont("comicsans", 30)
+STAT_FONT = pg.font.SysFont("comicsans", 20)
 
 class Cube():
     rows = rows
@@ -126,10 +130,10 @@ def randomSnack(rows, snake):
     return (x,y)
 
 def drawGrid(win):
-    global height, total_width, width, rows
-    pg.draw.line(win, (0,0,0), (0,int(height/2)),(total_width,int(height/2)),2)
+    global total_height, total_width, width, rows
+    pg.draw.line(win, black, (0,int(total_height/2)),(total_width,int(total_height/2)),2)
     for i in range(total_width//width):
-        pg.draw.line(win, (0,0,0), (int(width*i),0),(int(width*i),height),2)
+        pg.draw.line(win, black, (int(width*i),0),(int(width*i),total_height),2)
 
 
 def update_win(win, snakes, snacks, gen, scores, replay, gens = None):
@@ -144,31 +148,31 @@ def update_win(win, snakes, snacks, gen, scores, replay, gens = None):
     
     for snake in snakes:
     # score
-        score_label = STAT_FONT.render("Score: " + str(scores[snakes.index(snake)]), 1, (255, 0, 0))
+        score_label = STAT_FONT.render("Score: " + str(scores[snakes.index(snake)]), 1, red)
         win.blit(score_label, ((width*(1 + snake.offset.x/rows))-100, 10+(width*(snake.offset.y/rows))))
         if replay:
             # expected score
-            score_label = STAT_FONT.render("Expected: " + str(gens[snake][1]), 1, (255, 0, 0))
+            score_label = STAT_FONT.render("Expected: " + str(gens[snake][1]), 1, red)
             win.blit(score_label, ((width*(1 + snake.offset.x/rows))-130, 40+(width*(snake.offset.y/rows))))
     if not replay:
         # generations
         score_label = STAT_FONT.render("Gene: " + str(gen), 1, (255, 0, 0))
         win.blit(score_label, (10, 10))
         # Generation with highscore
-        score_label = STAT_FONT.render("At Gene: " + str(genHighscore), 1, (255, 0, 0))
+        score_label = STAT_FONT.render("At Gene: " + str(genHighscore), 1, red)
         win.blit(score_label, (10, width + 40))  
         # highscore
-        score_label = STAT_FONT.render("Highscore: " + str(highscore), 1, (255, 0, 0))
+        score_label = STAT_FONT.render("Highscore: " + str(highscore), 1, red)
         win.blit(score_label, (10, width + 10))
     if replay:
         # generations
-        score_label = STAT_FONT.render("Gene: " + str(gens[snake][0]), 1, (255, 0, 0))
+        score_label = STAT_FONT.render("Gene: " + str(gens[snake][0]), 1, red)
         win.blit(score_label, ((width*(1 + snake.offset.x/rows))-width+10, 10+(width*(snake.offset.y/rows))))
         # Generation with highscore
-        score_label = STAT_FONT.render("At Gene: " + str(genHighscore), 1, (255, 0, 0))
+        score_label = STAT_FONT.render("At Gene: " + str(genHighscore), 1, red)
         win.blit(score_label, (10, 10))  
         # highscore
-        score_label = STAT_FONT.render("Highscore: " + str(highscore), 1, (255, 0, 0))
+        score_label = STAT_FONT.render("Highscore: " + str(highscore), 1, red)
         win.blit(score_label, (10, 40))
   
     pg.display.update()
@@ -203,7 +207,7 @@ def run(config_file):
     
 
 def run_game(genomes, config):
-    global rows, width, height,total_width, gen, highscore, genHighscore, win_nets
+    global rows, width, total_height,total_width, gen, highscore, genHighscore, win_nets
     print("Highscore: "+str(highscore))
     clock = pg.time.Clock()
     ge = []
@@ -214,7 +218,7 @@ def run_game(genomes, config):
     scores = []
     showGame = False
     max_frames = int(rows*rows/2)
-    win = pg.display.set_mode((total_width, height))
+    win = pg.display.set_mode((total_width, total_height))
     i = 0
     j = 0
 
@@ -237,6 +241,7 @@ def run_game(genomes, config):
         else:
             i += 1
     
+        # only 6 blocks.. can change it to any value less than 6 too
         if len(snakes) == 6:
             while len(snakes) > 0:
                 if showGame:
@@ -579,7 +584,7 @@ def update_win_testwinners(win, snakes, snacks, scores):
     pg.display.update()
 
 def test_winner(winner, n):
-    global rows, width, height,total_width, gen, highscore, genHighscore, win_nets
+    global rows, width, total_height,total_width, gen, highscore, genHighscore, win_nets
     highscore = 0
     genHighscore = 0
 
@@ -590,7 +595,7 @@ def test_winner(winner, n):
     scores = []
     nets = []
     max_frames = rows*rows/2
-    win = pg.display.set_mode((total_width, height))
+    win = pg.display.set_mode((total_width, total_height))
     i = 0
     j = 0
 
@@ -654,7 +659,7 @@ def test_winner(winner, n):
             j = 0
 
 def run_winners():
-    global rows, width, height,total_width, gen, highscore, genHighscore, win_nets
+    global rows, width, total_height,total_width, gen, highscore, genHighscore, win_nets
     highscore = 0
     genHighscore = 0
 
@@ -666,7 +671,7 @@ def run_winners():
     nets = []
     gens = {}
     max_frames = rows*rows/2
-    win = pg.display.set_mode((total_width, height))
+    win = pg.display.set_mode((total_width, total_height))
     i = 0
     j = 0
 
