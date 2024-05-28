@@ -30,7 +30,6 @@ class Cube():
         self.dirnx = dirnx
         self.dirny = dirny
         self.color = color
- 
        
     def move(self, dirnx, dirny):
         self.dirnx = dirnx
@@ -222,6 +221,7 @@ def run_game(genomes, config):
     i = 0
     j = 0
 
+    print("no of genomes:"+ str(len(genomes)))
 
     for genome_id, genome in genomes:
         showGame = False
@@ -253,9 +253,9 @@ def run_game(genomes, config):
                     output = nets[index].activate(vision(snake,snacks[index]))
 
                     snake.move(getDirAction(snake, output))
-                    if snake.body[0].pos == snacks[snakes.index(snake)].pos:
+                    if snake.body[0].pos == snacks[index].pos:
                         snake.addCube()
-                        ge[snakes.index(snake)].fitness += 1
+                        ge[index].fitness += 1
                         scores[index] = ge[index].fitness
                         snacks[index] = Cube(randomSnack(rows, snake))
                         frames[index] = 0
@@ -382,7 +382,7 @@ def vision(snake, snack):
             dist[i] = wall
 
 
-    #Getting for the diretion of the snack                 
+    #Getting for the direction of the snack
     dirSnack = [-1,-1,-1] #AHEAD, LEFT, RIGHT
     xDist = abs(snake.head.pos[0]-snack.pos[0])
     yDist = abs(snake.head.pos[1]-snack.pos[1])
@@ -599,7 +599,6 @@ def test_winner(winner, n):
     i = 0
     j = 0
 
-
     for _ in range(n):
         snake = Snake((5,5),vec(i,j))
         snakes.append(snake)
@@ -607,7 +606,6 @@ def test_winner(winner, n):
         frames.append(0)
         scores.append(0)
         nets.append(winner)
-
 
         if i >= 2:
             i = 0
