@@ -18,7 +18,7 @@ width        = 400 # as well as height
 total_width  = 1200
 total_height = 800
 pg.init()
-pg.display.set_caption("Snake AI")
+#pg.display.set_caption("Snake AI")
 
 STAT_FONT = pg.font.SysFont("comicsans", 20)
 
@@ -207,7 +207,7 @@ def run(config_file):
 
 def run_game(genomes, config):
     global rows, width, total_height,total_width, gen, highscore, genHighscore, win_nets
-    print("Highscore: "+str(highscore))
+    #print("Highscore: "+str(highscore))
     clock = pg.time.Clock()
     ge = []
     nets = []
@@ -217,7 +217,7 @@ def run_game(genomes, config):
     scores = []
     showGame = False
     max_frames = int(rows*rows/2)
-    win = pg.display.set_mode((total_width, total_height))
+    #win = pg.display.set_mode((total_width, total_height))
     i = 0
     j = 0
 
@@ -235,14 +235,15 @@ def run_game(genomes, config):
         frames.append(0)
         scores.append(genome.fitness)
 
-        if i >= 2:
-            i = 0
-            j += 1
-        else:
-            i += 1
+        #if i >= 2:
+        #    i = 0
+        #    j += 1
+        #else:
+        #    i += 1
     
         # only 6 blocks.. can change it to any value less than 6 too
-        if len(snakes) == 6:
+        #if len(snakes) == 12:
+        if True:
             while len(snakes) > 0:
                 if showGame:
                     #pg.time.delay(50) #Turn this on if you want the game to go slower
@@ -252,10 +253,10 @@ def run_game(genomes, config):
                 for index, snake in enumerate(snakes):
                     output = nets[index].activate(vision(snake,snacks[index]))
 
-                    print("O:"+str(output))
+                    #print("O:"+str(output))
                     snake.move(getDirAction(snake, output))
                     if snake.body[0].pos == snacks[index].pos:
-                        print("YUM")
+                        #print("YUM")
                         snake.addCube()
                         ge[index].fitness += 1
                         scores[index] = ge[index].fitness
@@ -263,7 +264,7 @@ def run_game(genomes, config):
                         frames[index] = 0
                         if ge[index].fitness > highscore:
                             showGame = True
-                            #showGame = False
+                            showGame = False
 
                     frames[index] += 1
                     if frames[index] >= 100 and len(snake.body) <= 5:
@@ -491,7 +492,7 @@ def vision(snake, snack):
         dirSnack = [-1,-1,-1]
         dirSnack[dist.index(-1)] = 1             
 
-    print("V:"+str(dirSnack+dist))
+    #print("V:"+str(dirSnack+dist))
     return dirSnack+dist
 
 
