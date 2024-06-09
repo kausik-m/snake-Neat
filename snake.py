@@ -221,7 +221,7 @@ def run_game(genomes, config):
     i = 0
     j = 0
 
-    print("no of genomes:"+ str(len(genomes)))
+    #print("no of genomes:"+ str(len(genomes)))
 
     for genome_id, genome in genomes:
         showGame = False
@@ -252,8 +252,10 @@ def run_game(genomes, config):
                 for index, snake in enumerate(snakes):
                     output = nets[index].activate(vision(snake,snacks[index]))
 
+                    print("O:"+str(output))
                     snake.move(getDirAction(snake, output))
                     if snake.body[0].pos == snacks[index].pos:
+                        print("YUM")
                         snake.addCube()
                         ge[index].fitness += 1
                         scores[index] = ge[index].fitness
@@ -261,6 +263,7 @@ def run_game(genomes, config):
                         frames[index] = 0
                         if ge[index].fitness > highscore:
                             showGame = True
+                            #showGame = False
 
                     frames[index] += 1
                     if frames[index] >= 100 and len(snake.body) <= 5:
@@ -268,7 +271,7 @@ def run_game(genomes, config):
                         ge[index].fitness -= 10
 
                     for x in range(len(snake.body)):
-                        if snake.body[x].pos in list(map(lambda z:z.pos,snake.body[x+1:])) or frames[snakes.index(snake)] >= max_frames:
+                        if snake.body[x].pos in list(map(lambda z:z.pos,snake.body[x+1:])) or frames[index] >= max_frames:
                             frames.pop(index)
                             snacks.pop(index)
                             nets.pop(index)
@@ -488,7 +491,7 @@ def vision(snake, snack):
         dirSnack = [-1,-1,-1]
         dirSnack[dist.index(-1)] = 1             
 
-
+    print("V:"+str(dirSnack+dist))
     return dirSnack+dist
 
 
@@ -622,6 +625,7 @@ def test_winner(winner, n):
                 for index, snake in snakes:
                     output = nets[index].activate(vision(snake,snacks[index]))
 
+                    print("O:"+str(output))
                     snake.move(getDirAction(snake, output))
                     if snake.body[0].pos == snacks[index].pos:
                         snake.addCube()
