@@ -245,7 +245,7 @@ def run_game(genomes, config):
                         frames[index] = 0
                         if ge[index].fitness > highscore:
                             showGame = True
-                            showGame = False
+                            showGame = False #to disable display. It may not work even if enabled.
 
                     frames[index] += 1
                     if frames[index] >= 100 and len(snake.body) <= 5:
@@ -283,75 +283,77 @@ def vision(snake, snack):
     dist = [-1,-1,-1] #AHEAD,LEFT,RIGHT
     distBody = [-1,-1,-1] #If body if 1 away AHEAD, LEFT, RIGHT
     defaultDist = rows/2
+
+    head_x, head_y = snake.head.pos
     for i, body in enumerate(snake.body[1:]):
  
         #GOING RIGHT
         if snake.dirnx == 1:
-            if (snake.head.pos[0]+defaultDist) >= body.pos[0] and snake.head.pos[1] == body.pos[1] and snake.head.pos[0] < body.pos[0]: #BODY FORWARD
-                if dist[0] == -1 or dist[0] > abs(snake.head.pos[0]-body.pos[0]):
-                    dist[0] = abs(snake.head.pos[0]-body.pos[0])
+            if (head_x + defaultDist) >= body.pos[0] and head_y == body.pos[1] and head_x < body.pos[0]: #BODY FORWARD
+                if dist[0] == -1 or dist[0] > abs(head_x - body.pos[0]):
+                    dist[0] = abs(head_x - body.pos[0])
                     if dist[0] == 1:
                         distBody[0] = 1
-            if snake.head.pos[0] == body.pos[0] and (snake.head.pos[1]-defaultDist) <= body.pos[1] and snake.head.pos[1] > body.pos[1]: #LEFT
-                if dist[1] == -1 or dist[1] > abs(snake.head.pos[1]-body.pos[1]):
-                    dist[1] = abs(snake.head.pos[1]-body.pos[1])
+            if head_x == body.pos[0] and (head_y - defaultDist) <= body.pos[1] and head_y > body.pos[1]: #LEFT
+                if dist[1] == -1 or dist[1] > abs(head_y - body.pos[1]):
+                    dist[1] = abs(head_y - body.pos[1])
                     if dist[1] == 1:
                         distBody[1] = 1
-            if snake.head.pos[0] == body.pos[0] and (snake.head.pos[1]+defaultDist) >= body.pos[1] and snake.head.pos[1] < body.pos[1]: #RIGHT
-                if dist[2] == -1 or dist[2] > abs(snake.head.pos[1]-body.pos[1]):
-                    dist[2] = abs(snake.head.pos[1]-body.pos[1])
+            if head_x == body.pos[0] and (head_y + defaultDist) >= body.pos[1] and head_y < body.pos[1]: #RIGHT
+                if dist[2] == -1 or dist[2] > abs(head_y - body.pos[1]):
+                    dist[2] = abs(head_y - body.pos[1])
                     if dist[2] == 1:
                         distBody[2] = 1
         #GOING LEFT
         elif snake.dirnx == -1:
-            if (snake.head.pos[0]-defaultDist) <= body.pos[0] and snake.head.pos[1] == body.pos[1] and snake.head.pos[0] > body.pos[0]: #BODY FORWARD
-                if dist[0] == -1 or dist[0] > abs(snake.head.pos[0]-body.pos[0]):
-                    dist[0] = abs(snake.head.pos[0]-body.pos[0])
+            if (head_x - defaultDist) <= body.pos[0] and head_y == body.pos[1] and head_x > body.pos[0]: #BODY FORWARD
+                if dist[0] == -1 or dist[0] > abs(head_x - body.pos[0]):
+                    dist[0] = abs(head_x - body.pos[0])
                     if dist[0] == 1:
                         distBody[0] = 1
-            if snake.head.pos[0] == body.pos[0] and (snake.head.pos[1]+defaultDist) >= body.pos[1] and snake.head.pos[1] < body.pos[1]: #LEFT
-                if dist[1] == -1 or dist[1] > abs(snake.head.pos[1]-body.pos[1]):
-                    dist[1] = abs(snake.head.pos[1]-body.pos[1])
+            if head_x == body.pos[0] and (head_y + defaultDist) >= body.pos[1] and head_y < body.pos[1]: #LEFT
+                if dist[1] == -1 or dist[1] > abs(head_y - body.pos[1]):
+                    dist[1] = abs(head_y - body.pos[1])
                     if dist[1] == 1:
                         distBody[1] = 1
-            if snake.head.pos[0] == body.pos[0] and (snake.head.pos[1]-defaultDist) <= body.pos[1] and snake.head.pos[1] > body.pos[1]: #RIGHT
-                if dist[2] == -1 or dist[2] > abs(snake.head.pos[1]-body.pos[1]):
-                    dist[2] = abs(snake.head.pos[1]-body.pos[1])
+            if head_x == body.pos[0] and (head_y - defaultDist) <= body.pos[1] and head_y > body.pos[1]: #RIGHT
+                if dist[2] == -1 or dist[2] > abs(head_y - body.pos[1]):
+                    dist[2] = abs(head_y - body.pos[1])
                     if dist[2] == 1:
                         distBody[2] = 1
         #GOING UP
         elif snake.dirny == -1:
-            if (snake.head.pos[1]-defaultDist) <= body.pos[1] and snake.head.pos[0] == body.pos[0] and snake.head.pos[1] > body.pos[1]: #BODY FORWARD
-                if dist[0] == -1 or dist[0] > abs(snake.head.pos[1]-body.pos[1]):
-                    dist[0] = abs(snake.head.pos[1]-body.pos[1])
+            if (head_y - defaultDist) <= body.pos[1] and head_x == body.pos[0] and head_y > body.pos[1]: #BODY FORWARD
+                if dist[0] == -1 or dist[0] > abs(head_y - body.pos[1]):
+                    dist[0] = abs(head_y - body.pos[1])
                     if dist[0] == 1:
                         distBody[0] = 1
-            if snake.head.pos[1] == body.pos[1] and (snake.head.pos[0]-defaultDist) <= body.pos[0] and snake.head.pos[0] > body.pos[0]: #LEFT
-                if dist[1] == -1 or dist[1] > abs(snake.head.pos[0]-body.pos[0]):
-                    dist[1] = abs(snake.head.pos[0]-body.pos[0])
+            if head_y == body.pos[1] and (head_y - defaultDist) <= body.pos[0] and head_x > body.pos[0]: #LEFT
+                if dist[1] == -1 or dist[1] > abs(head_x - body.pos[0]):
+                    dist[1] = abs(head_x - body.pos[0])
                     if dist[1] == 1:
                         distBody[1] = 1
-            if snake.head.pos[1] == body.pos[1] and (snake.head.pos[0]+defaultDist) >= body.pos[0] and snake.head.pos[0] < body.pos[0]: #RIGHT
-                if dist[2] == -1 or dist[2] > abs(snake.head.pos[0]-body.pos[0]):
-                    dist[2] = abs(snake.head.pos[0]-body.pos[0])
+            if head_y == body.pos[1] and (head_x + defaultDist) >= body.pos[0] and head_x < body.pos[0]: #RIGHT
+                if dist[2] == -1 or dist[2] > abs(head_x-body.pos[0]):
+                    dist[2] = abs(head_x - body.pos[0])
                     if dist[2] == 1:
                         distBody[2] = 1                    
 
         #GOING DOWN 
         elif snake.dirny == 1:
-            if (snake.head.pos[1]+defaultDist) >= body.pos[1] and snake.head.pos[0] == body.pos[0] and snake.head.pos[1] < body.pos[1]: #BODY FORWARD
-                if dist[0] == -1 or dist[0] > abs(snake.head.pos[1]-body.pos[1]):    
-                    dist[0] = abs(snake.head.pos[1]-body.pos[1])
+            if (head_y + defaultDist) >= body.pos[1] and head_x == body.pos[0] and head_y < body.pos[1]: #BODY FORWARD
+                if dist[0] == -1 or dist[0] > abs(head_y - body.pos[1]):    
+                    dist[0] = abs(head_y - body.pos[1])
                     if dist[0] == 1:
                         distBody[0] = 1
-            if snake.head.pos[1] == body.pos[1] and (snake.head.pos[0]+defaultDist) >= body.pos[0] and snake.head.pos[0] < body.pos[0]: #LEFT
-                if dist[1] == -1 or dist[1] > abs(snake.head.pos[0]-body.pos[0]):
-                    dist[1] = abs(snake.head.pos[0]-body.pos[0])
+            if head_y == body.pos[1] and (head_x + defaultDist) >= body.pos[0] and head_x < body.pos[0]: #LEFT
+                if dist[1] == -1 or dist[1] > abs(head_x - body.pos[0]):
+                    dist[1] = abs(head_x - body.pos[0])
                     if dist[1] == 1:
                         distBody[1] = 1
-            if snake.head.pos[1] == body.pos[1] and (snake.head.pos[0]-defaultDist) <= body.pos[0] and snake.head.pos[0] > body.pos[0]: #RIGHT
-                if dist[2] == -1 or dist[2] > abs(snake.head.pos[0]-body.pos[0]):
-                    dist[2] = abs(snake.head.pos[0]-body.pos[0])
+            if head_y == body.pos[1] and (head_x - defaultDist) <= body.pos[0] and head_x > body.pos[0]: #RIGHT
+                if dist[2] == -1 or dist[2] > abs(head_x - body.pos[0]):
+                    dist[2] = abs(head_x - body.pos[0])
                     if dist[2] == 1:
                         distBody[2] = 1
 
@@ -364,27 +366,27 @@ def vision(snake, snack):
 
     #Getting for the direction of the snack
     dirSnack = [-1,-1,-1] #AHEAD, LEFT, RIGHT
-    xDist = abs(snake.head.pos[0]-snack.pos[0])
-    yDist = abs(snake.head.pos[1]-snack.pos[1])
+    xDist = abs(head_x - snack.pos[0])
+    yDist = abs(head_y - snack.pos[1])
     block = [-1,-1,-1] #BLOCKED BY BODY AHEAD, LEFT, RIGHT
 
     if snake.dirnx == 1:
-        if snake.head.pos[0] < snack.pos[0]:
+        if head_x < snack.pos[0]:
             if dist[0] < xDist and dist[0] != -1:
                 block[0] = 1
             else:
                 dirSnack[0] = 1#abs(snake.head.pos[0]-snack.pos[0])
-        elif snake.head.pos[0] > snack.pos[0] and snake.head.pos[1] == snack.pos[1]:
+        elif head_x > snack.pos[0] and head_y == snack.pos[1]:
             if(random.randint(0,1)):
                 dirSnack[1] = 1
             else:
                 dirSnack[2] = 1
-        if snake.head.pos[1] > snack.pos[1]:
+        if head_y > snack.pos[1]:
             if dist[1] < yDist and dist[1] != -1:
                 block[1] = 1
             else:
                 dirSnack[1] = 1#abs(snake.head.pos[1]-snack.pos[1])
-        if snake.head.pos[1] < snack.pos[1]:
+        if head_y < snack.pos[1]:
             if dist[2] < yDist and dist[2] != -1:
                 block[2] = 1
             else:
@@ -392,22 +394,22 @@ def vision(snake, snack):
 
         
     elif snake.dirnx == -1:
-        if snake.head.pos[0] > snack.pos[0]:
+        if head_x > snack.pos[0]:
             if dist[0] < xDist and dist[0] != -1:
                 block[0] = 1
             else:
                 dirSnack[0] = 1#abs(snake.head.pos[0]-snack.pos[0])
-        elif snake.head.pos[0] < snack.pos[0] and snake.head.pos[1] == snack.pos[1]:
+        elif head_x < snack.pos[0] and head_y == snack.pos[1]:
             if(random.randint(0,1)):
                 dirSnack[1] = 1
             else:
                 dirSnack[2] = 1
-        if snake.head.pos[1] < snack.pos[1]:
+        if head_y < snack.pos[1]:
             if dist[1] < yDist and dist[1] != -1:
                 block[1] = 1
             else:
                 dirSnack[1] = 1#abs(snake.head.pos[1]-snack.pos[1])
-        if snake.head.pos[1] > snack.pos[1]:
+        if head_y > snack.pos[1]:
             if dist[2] < yDist and dist[2] != -1:
                 block[2] = 1
             else:
@@ -415,22 +417,22 @@ def vision(snake, snack):
 
        
     elif snake.dirny == -1: 
-        if snake.head.pos[1] > snack.pos[1]:
+        if head_y > snack.pos[1]:
             if dist[0] < yDist and dist[0] != -1:
                 block[0] = 1
             else:
                 dirSnack[0] = 1#abs(snake.head.pos[1]-snack.pos[1])
-        elif snake.head.pos[1] < snack.pos[1] and snake.head.pos[0] == snack.pos[0]:
+        elif head_y < snack.pos[1] and head_x == snack.pos[0]:
             if(random.randint(0,1)):
                 dirSnack[1] = 1
             else:
                 dirSnack[2] = 1
-        if snake.head.pos[0] > snack.pos[0]:
+        if head_x > snack.pos[0]:
             if dist[1] < xDist and dist[1] != -1:
                 block[1] = 1
             else:
                 dirSnack[1] = 1#abs(snake.head.pos[0]-snack.pos[0])
-        if snake.head.pos[0] < snack.pos[0]:
+        if head_x < snack.pos[0]:
             if dist[2] < xDist and dist[2] != -1:
                 block[2] = 1
             else:
@@ -438,22 +440,22 @@ def vision(snake, snack):
 
 
     elif snake.dirny == 1: 
-        if snake.head.pos[1] < snack.pos[1]:
+        if head_y < snack.pos[1]:
             if dist[0] < yDist and dist[0] != -1:
                 block[0] = 1
             else:
                 dirSnack[0] = 1#abs(snake.head.pos[1]-snack.pos[1])
-        elif snake.head.pos[1] > snack.pos[1] and snake.head.pos[0] == snack.pos[0]:
+        elif head_y > snack.pos[1] and head_x == snack.pos[0]:
             if(random.randint(0,1)):
                 dirSnack[1] = 1
             else:
                 dirSnack[2] = 1
-        if snake.head.pos[0] < snack.pos[0]:
+        if head_x < snack.pos[0]:
             if dist[1] < xDist and dist[1] != -1:
                 block[1] = 1
             else:
                 dirSnack[1] = 1#abs(snake.head.pos[0]-snack.pos[0])
-        if snake.head.pos[0] > snack.pos[0]:
+        if head_x > snack.pos[0]:
             if dist[2] < xDist and dist[2] != -1:
                 block[2] = 1
             else:
@@ -476,34 +478,36 @@ def distWall(snake):
     global rows
     defaultDist = 5
     dist = [-1,-1,-1] #AHEAD, LEFT, RIGHT
+    
+    head_x, head_y = snake.head.pos
     if snake.dirnx == 1:
-        if (snake.head.pos[0]+defaultDist) >= (rows-1):
-            dist[0] = abs(snake.head.pos[0]-(rows-1))
-        if (snake.head.pos[1]-defaultDist) <= 0:
-            dist[1] = abs(snake.head.pos[1]- 0)
-        if (snake.head.pos[1]+defaultDist) >= (rows-1):
-            dist[2] = abs(snake.head.pos[1]-(rows-1))
+        if (head_x + defaultDist) >= (rows-1):
+            dist[0] = abs(head_x - (rows-1))
+        if (head_y - defaultDist) <= 0:
+            dist[1] = abs(snake.head.pos[1] - 0)
+        if (head_y+defaultDist) >= (rows-1):
+            dist[2] = abs(head_y - (rows-1))
     elif snake.dirnx == -1:  
-        if (snake.head.pos[0]-defaultDist) <= 0:
-            dist[0] = abs(snake.head.pos[0]- 0)
-        if (snake.head.pos[1]-defaultDist) <= 0:
-            dist[2] = abs(snake.head.pos[1]- 0)
-        if (snake.head.pos[1]+defaultDist) >= (rows-1):
-            dist[1] = abs(snake.head.pos[1]-(rows-1))
+        if (head_x - defaultDist) <= 0:
+            dist[0] = abs(head_x)
+        if (head_y - defaultDist) <= 0:
+            dist[2] = abs(snake.head.pos[1] - 0)
+        if (head_y + defaultDist) >= (rows-1):
+            dist[1] = abs(head_y - (rows-1))
     elif snake.dirny == -1: 
-        if (snake.head.pos[1]-defaultDist) <= 0:
-            dist[0] = abs(snake.head.pos[1]-0)
-        if  (snake.head.pos[0]+defaultDist) >= (rows-1):
-            dist[2] = abs(snake.head.pos[0]-(rows-1))
-        if (snake.head.pos[0]-defaultDist) <= 0:
-            dist[1] = abs(snake.head.pos[0]-0)
+        if (head_y - defaultDist) <= 0:
+            dist[0] = abs(head_y - 0)
+        if  (head_x + defaultDist) >= (rows - 1):
+            dist[2] = abs(head_x - (rows - 1))
+        if (head_x - defaultDist) <= 0:
+            dist[1] = abs(head_x)
     elif snake.dirny == 1: 
-        if (snake.head.pos[1]+defaultDist) >= (rows-1):
-            dist[0] = abs(snake.head.pos[1]-(rows-1))
-        if (snake.head.pos[0]+defaultDist) >= (rows-1):
-            dist[1] = abs(snake.head.pos[0]-(rows-1))
-        if  (snake.head.pos[0]-defaultDist) <= 0:
-            dist[2] = abs(snake.head.pos[0]-0)
+        if (head_y + defaultDist) >= (rows - 1):
+            dist[0] = abs(head_y - (rows-1))
+        if (head_x + defaultDist) >= (rows-1):
+            dist[1] = abs(head_x - (rows-1))
+        if  (head_x - defaultDist) <= 0:
+            dist[2] = abs(head_x)
 
     return dist
 
