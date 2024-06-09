@@ -46,11 +46,10 @@ class Cube():
 class Snake():
     rows = rows
     w = width
-    def __init__(self, pos, offset):
-        self.offset = vec(self.rows*offset.x, self.rows*offset.y)
+    def __init__(self, pos):
         self.dirnx = 1
         self.dirny = 0
-        self.head = Cube((pos[0]+self.offset.x, pos[1]+self.offset.y), self.dirnx, self.dirny)
+        self.head = Cube((pos[0], pos[1]), self.dirnx, self.dirny)
         self.body = []
         self.turns = {}
         self.body.append(self.head)
@@ -119,8 +118,8 @@ def randomSnack(rows, snake):
     positions = snake.body
  
     while True:
-        x = random.randrange(snake.offset.x, snake.offset.x+rows-1)
-        y = random.randrange(snake.offset.y, snake.offset.y+rows-1)
+        x = random.randrange(0, rows-1)
+        y = random.randrange(0, rows-1)
         if len(list(filter(lambda z:z.pos == (x,y), positions))) > 0:
             continue
         else:
@@ -208,8 +207,6 @@ def run_game(genomes, config):
     showGame = False
     max_frames = int(rows*rows/2)
     #win = pg.display.set_mode((total_width, total_height))
-    i = 0
-    j = 0
 
     #print("no of genomes:"+ str(len(genomes)))
 
@@ -218,18 +215,12 @@ def run_game(genomes, config):
         genome.fitness = 0  # start with fitness level of 0
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         nets.append(net)
-        snake = Snake((5,5),vec(i,j))
+        snake = Snake((5,5))
         snakes.append(snake)
         snacks.append(Cube(randomSnack(rows, snake)))
         ge.append(genome)
         frames.append(0)
         scores.append(genome.fitness)
-
-        #if i >= 2:
-        #    i = 0
-        #    j += 1
-        #else:
-        #    i += 1
     
         # only 6 blocks.. can change it to any value less than 6 too
         #if len(snakes) == 12:
@@ -270,7 +261,7 @@ def run_game(genomes, config):
                             scores.pop(index)
                             snakes.remove(snake)
                             break
-                        elif snake.head.pos[0] < snake.offset.x or snake.head.pos[0] > snake.offset.x+snake.rows-1 or snake.head.pos[1] > snake.rows+snake.offset.y-1 or snake.head.pos[1] < snake.offset.y:
+                        elif snake.head.pos[0] < 0 or snake.head.pos[0] > (snake.rows-1) or snake.head.pos[1] > snake.rows-1 or snake.head.pos[1] < 0:
                             frames.pop(index)
                             snacks.pop(index)
                             nets.pop(index)
@@ -284,12 +275,8 @@ def run_game(genomes, config):
                         highscore = max(scores)
                         genHighscore = gen
                         win_nets[nets[snakes.index(snake)]] = [gen,highscore]
-     
-            #i = 0
-            #j = 0
     
     gen += 1
-
 
 def vision(snake, snack):
     global rows
@@ -490,33 +477,33 @@ def distWall(snake):
     defaultDist = 5
     dist = [-1,-1,-1] #AHEAD, LEFT, RIGHT
     if snake.dirnx == 1:
-        if (snake.head.pos[0]+defaultDist) >= (snake.offset.x+rows-1):
-            dist[0] = abs(snake.head.pos[0]-(snake.offset.x+rows-1))
-        if (snake.head.pos[1]-defaultDist) <= snake.offset.y:
-            dist[1] = abs(snake.head.pos[1]-snake.offset.y)
-        if (snake.head.pos[1]+defaultDist) >= (snake.offset.y+rows-1):
-            dist[2] = abs(snake.head.pos[1]-(snake.offset.y+rows-1))
+        if (snake.head.pos[0]+defaultDist) >= (rows-1):
+            dist[0] = abs(snake.head.pos[0]-(rows-1))
+        if (snake.head.pos[1]-defaultDist) <= 0:
+            dist[1] = abs(snake.head.pos[1]- 0)
+        if (snake.head.pos[1]+defaultDist) >= (rows-1):
+            dist[2] = abs(snake.head.pos[1]-(rows-1))
     elif snake.dirnx == -1:  
-        if (snake.head.pos[0]-defaultDist) <= snake.offset.x:
-            dist[0] = abs(snake.head.pos[0]-snake.offset.x)
-        if (snake.head.pos[1]-defaultDist) <= snake.offset.y:
-            dist[2] = abs(snake.head.pos[1]-snake.offset.y)
-        if (snake.head.pos[1]+defaultDist) >= (snake.offset.y+rows-1):
-            dist[1] = abs(snake.head.pos[1]-(snake.offset.y+rows-1))
+        if (snake.head.pos[0]-defaultDist) <= 0:
+            dist[0] = abs(snake.head.pos[0]- 0)
+        if (snake.head.pos[1]-defaultDist) <= 0:
+            dist[2] = abs(snake.head.pos[1]- 0)
+        if (snake.head.pos[1]+defaultDist) >= (rows-1):
+            dist[1] = abs(snake.head.pos[1]-(rows-1))
     elif snake.dirny == -1: 
-        if (snake.head.pos[1]-defaultDist) <= snake.offset.y:
-            dist[0] = abs(snake.head.pos[1]-snake.offset.y)
-        if  (snake.head.pos[0]+defaultDist) >= (snake.offset.x+rows-1):
-            dist[2] = abs(snake.head.pos[0]-(snake.offset.x+rows-1))
-        if (snake.head.pos[0]-defaultDist) <= snake.offset.x:
-            dist[1] = abs(snake.head.pos[0]-snake.offset.x)
+        if (snake.head.pos[1]-defaultDist) <= 0:
+            dist[0] = abs(snake.head.pos[1]-0)
+        if  (snake.head.pos[0]+defaultDist) >= (rows-1):
+            dist[2] = abs(snake.head.pos[0]-(rows-1))
+        if (snake.head.pos[0]-defaultDist) <= 0:
+            dist[1] = abs(snake.head.pos[0]-0)
     elif snake.dirny == 1: 
-        if (snake.head.pos[1]+defaultDist) >= (snake.offset.y+rows-1):
-            dist[0] = abs(snake.head.pos[1]-(snake.offset.y+rows-1))
-        if (snake.head.pos[0]+defaultDist) >= (snake.offset.x+rows-1):
-            dist[1] = abs(snake.head.pos[0]-(snake.offset.x+rows-1))
-        if  (snake.head.pos[0]-defaultDist) <= snake.offset.x:
-            dist[2] = abs(snake.head.pos[0]-snake.offset.x)
+        if (snake.head.pos[1]+defaultDist) >= (rows-1):
+            dist[0] = abs(snake.head.pos[1]-(rows-1))
+        if (snake.head.pos[0]+defaultDist) >= (rows-1):
+            dist[1] = abs(snake.head.pos[0]-(rows-1))
+        if  (snake.head.pos[0]-defaultDist) <= 0:
+            dist[2] = abs(snake.head.pos[0]-0)
 
     return dist
 
