@@ -147,11 +147,11 @@ def update_win(win, snakes, snacks, gen, scores, replay, gens = None):
     for snake in snakes:
     # score
         score_label = STAT_FONT.render("Score: " + str(scores[snakes.index(snake)]), 1, red)
-        win.blit(score_label, ((width*(1 + snake.offset.x/rows))-100, 10+(width*(snake.offset.y/rows))))
+        win.blit(score_label, ((width)-100, 10+(width)))
         if replay:
             # expected score
             score_label = STAT_FONT.render("Expected: " + str(gens[snake][1]), 1, red)
-            win.blit(score_label, ((width*(1 + snake.offset.x/rows))-130, 40+(width*(snake.offset.y/rows))))
+            win.blit(score_label, ((width)-130, 40+(width)))
     if not replay:
         # generations
         score_label = STAT_FONT.render("Gene: " + str(gen), 1, (255, 0, 0))
@@ -165,7 +165,7 @@ def update_win(win, snakes, snacks, gen, scores, replay, gens = None):
     if replay:
         # generations
         score_label = STAT_FONT.render("Gene: " + str(gens[snake][0]), 1, red)
-        win.blit(score_label, ((width*(1 + snake.offset.x/rows))-width+10, 10+(width*(snake.offset.y/rows))))
+        win.blit(score_label, ((width)-width+10, 10+(width)))
         # Generation with highscore
         score_label = STAT_FONT.render("At Gene: " + str(genHighscore), 1, red)
         win.blit(score_label, (10, 10))  
@@ -207,6 +207,7 @@ def run_game(genomes, config):
     showGame = False
     max_frames = int(rows*rows/2)
     #win = pg.display.set_mode((total_width, total_height))
+    win = pg.display.set_mode((width, width))
 
     #print("no of genomes:"+ str(len(genomes)))
 
