@@ -3,6 +3,9 @@ import random
 import os
 import math
 import neat
+import matplotlib.pyplot as plt
+import numpy as np
+
 vec = pg.math.Vector2
 
 # colours
@@ -127,6 +130,7 @@ def randomSnack(rows, snake):
        
     return (x,y)
 
+
 def drawGrid(win):
     global total_height, total_width, width, rows
     pg.draw.line(win, black, (0,int(total_height/2)),(total_width,int(total_height/2)),2)
@@ -141,39 +145,100 @@ def update_win(win, snakes, snacks, gen, scores, replay, gens = None):
         snake.draw(win)
     for snack in snacks:
         snack.draw(win)
-    drawGrid(win)
+    # drawGrid(win)
 
     
     for snake in snakes:
     # score
         score_label = STAT_FONT.render("Score: " + str(scores[snakes.index(snake)]), 1, red)
-        win.blit(score_label, ((width)-100, 10+(width)))
+        win.blit(score_label, ((width - 100), 10))
+
         if replay:
             # expected score
             score_label = STAT_FONT.render("Expected: " + str(gens[snake][1]), 1, red)
-            win.blit(score_label, ((width)-130, 40+(width)))
+            win.blit(score_label, ((width-130), 40))
     if not replay:
         # generations
-        score_label = STAT_FONT.render("Gene: " + str(gen), 1, (255, 0, 0))
+        score_label = STAT_FONT.render("Gene: " + str(gen), 1, red)
         win.blit(score_label, (10, 10))
         # Generation with highscore
         score_label = STAT_FONT.render("At Gene: " + str(genHighscore), 1, red)
-        win.blit(score_label, (10, width + 40))  
+        win.blit(score_label, (10, 40))  
         # highscore
         score_label = STAT_FONT.render("Highscore: " + str(highscore), 1, red)
-        win.blit(score_label, (10, width + 10))
+        win.blit(score_label, (10, width - 40))
     if replay:
         # generations
         score_label = STAT_FONT.render("Gene: " + str(gens[snake][0]), 1, red)
-        win.blit(score_label, ((width)-width+10, 10+(width)))
+        win.blit(score_label, (10, 10))
         # Generation with highscore
         score_label = STAT_FONT.render("At Gene: " + str(genHighscore), 1, red)
-        win.blit(score_label, (10, 10))  
+        win.blit(score_label, (10, 40))  
         # highscore
         score_label = STAT_FONT.render("Highscore: " + str(highscore), 1, red)
-        win.blit(score_label, (10, 40))
+        win.blit(score_label, (10, width - 40))
   
     pg.display.update()
+
+def update_win_testwinners(win, snakes, snacks, scores):
+    global rows, highscore
+    win.fill((103,155,0))
+    for snake in snakes:
+        snake.draw(win)
+    for snack in snacks:
+        snack.draw(win)
+    # drawGrid(win)
+
+    
+    for snake in snakes:
+    # score
+        score_label = STAT_FONT.render("Score: " + str(scores[snakes.index(snake)]), 1, red)
+        win.blit(score_label, ((width-100), 10))
+
+    # highscore
+    score_label = STAT_FONT.render("Highscore: " + str(highscore), 1, red)
+    win.blit(score_label, (10, 10))
+
+    pg.display.update()
+    
+class CustomReporter(neat.reporting.BaseReporter):
+    def __init__(self, stats):
+        self.stats = stats
+
+    def post_evaluate(self, config, population, species, best_genome):
+        generation = len(self.stats.generation)
+        self.stats.generation.append(generation)
+        fitnesses = [c.fitness for c in population.values()]
+        self.stats.max_fitness.append(max(fitnesses))
+        self.stats.avg_fitness.append(sum(fitnesses) / len(fitnesses))
+        self.stats.min_fitness.append(min(fitnesses))
+
+class NEATStatistics:
+    def __init__(self):
+        self.generation = []
+        self.max_fitness = []
+        self.avg_fitness = []
+        self.min_fitness = []
+
+
+
+def plot_performance(stats):
+    generations = stats.generation
+    max_fitness = stats.max_fitness
+    avg_fitness = stats.avg_fitness
+    min_fitness = stats.min_fitness
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(generations, max_fitness, label='Max Fitness')
+    plt.plot(generations, avg_fitness, label='Avg Fitness')
+    plt.plot(generations, min_fitness, label='Min Fitness')
+
+    plt.xlabel('Generations')
+    plt.ylabel('Fitness')
+    plt.title('NEAT Algorithm Performance')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.show()
 
 def run(config_file):
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
@@ -187,13 +252,29 @@ def run(config_file):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    # p.add_reporter(neat.Checkpointer(5))
+    p.add_reporter(neat.Checkpointer(5))
+    
+    # Add custom stats recording
+    stats_1 = NEATStatistics()
+    custom_reporter = CustomReporter(stats_1)
+    p.add_reporter(custom_reporter)
 
     # Run for up to x generations.
     winner = p.run(run_game, 100)
 
     # show final stats
     print('\nBest genome:\n{!s}'.format(winner))
+    
+
+    #Run the record breakers
+    run_winners()
+
+    #Test the best net x numbers of times 
+    winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
+    test_winner(winner_net,120)
+    
+    # Plot the performance
+    plot_performance(stats_1)
 
 def run_game(genomes, config):
     global rows, width, total_height,total_width, gen, highscore, genHighscore, win_nets
@@ -206,7 +287,6 @@ def run_game(genomes, config):
     scores = []
     showGame = False
     max_frames = int(rows*rows/2)
-    #win = pg.display.set_mode((total_width, total_height))
     win = pg.display.set_mode((width, width))
 
     #print("no of genomes:"+ str(len(genomes)))
@@ -223,19 +303,17 @@ def run_game(genomes, config):
         frames.append(0)
         scores.append(genome.fitness)
     
-        # only 6 blocks.. can change it to any value less than 6 too
-        #if len(snakes) == 12:
         if True:
             while len(snakes) > 0:
                 if showGame:
-                    #pg.time.delay(50) #Turn this on if you want the game to go slower
-                    #clock.tick(50)
+                    #pg.time.delay(10) #Turn this on if you want the game to go slower
+                    #clock.tick(10) 
                     update_win(win,snakes,snacks,gen,scores,False)
+                    
                 
                 for index, snake in enumerate(snakes):
                     output = nets[index].activate(vision(snake,snacks[index]))
 
-                    #print("O:"+str(output))
                     snake.move(getDirAction(snake, output))
                     if snake.body[0].pos == snacks[index].pos:
                         #print("YUM")
@@ -262,7 +340,7 @@ def run_game(genomes, config):
                             scores.pop(index)
                             snakes.remove(snake)
                             break
-                        elif snake.head.pos[0] < 0 or snake.head.pos[0] > (snake.rows-1) or snake.head.pos[1] > snake.rows-1 or snake.head.pos[1] < 0:
+                        elif snake.head.pos[0] < 0 or snake.head.pos[0] > (snake.rows - 1) or snake.head.pos[1] > (snake.rows - 1) or snake.head.pos[1] < 0:
                             frames.pop(index)
                             snacks.pop(index)
                             nets.pop(index)
@@ -278,6 +356,139 @@ def run_game(genomes, config):
                         win_nets[nets[snakes.index(snake)]] = [gen,highscore]
     
     gen += 1
+    
+def run_winners():
+    global rows, width, total_height,total_width, gen, highscore, genHighscore, win_nets
+    highscore = 0
+    genHighscore = 0
+
+    clock = pg.time.Clock()
+    snakes = []
+    snacks = []
+    frames = []
+    scores = []
+    nets = []
+    gens = {}
+    max_frames = int(rows*rows/2)
+    win = pg.display.set_mode((width, width))
+
+    for net in win_nets:
+        snake = Snake((5,5))
+        snakes.append(snake)
+        snacks.append(Cube(randomSnack(rows, snake)))
+        frames.append(0)
+        scores.append(0)
+        nets.append(net)
+        gens[snake] = win_nets[net]
+
+        #if len(snakes) == 6 or len(gens) == len(win_nets):
+        if True:
+            while len(snakes) > 0:
+                #pg.time.delay(10) 
+                #clock.tick(10) #Turn this on if you want the game to go slower
+                update_win(win,snakes,snacks,gen,scores,True,gens)
+                
+                for index, snake in enumerate(snakes):
+                    output = nets[index].activate(vision(snake,snacks[index]))
+
+                    snake.move(getDirAction(snake, output))
+                    if snake.body[0].pos == snacks[index].pos:
+                        snake.addCube()
+                        scores[index] += 1
+                        snacks[index] = Cube(randomSnack(rows, snake))
+                        frames[index] = 0
+                    
+                    frames[index] += 1
+                    if frames[index] >= 100 and len(snake.body) <= 5:
+                        frames[index] = max_frames
+
+                    for x in range(len(snake.body)):
+                        if snake.body[x].pos in list(map(lambda z:z.pos,snake.body[x+1:])) or frames[index] >= max_frames:
+                            frames.pop(index)
+                            snacks.pop(index)
+                            nets.pop(index)
+                            scores.pop(index)
+                            snakes.remove(snake)
+                            break
+                        elif snake.head.pos[0] < 0 or snake.head.pos[0] > (snake.rows - 1) or snake.head.pos[1] > (snake.rows - 1) or snake.head.pos[1] < 0:
+                            frames.pop(index)
+                            snacks.pop(index)
+                            nets.pop(index)
+                            scores.pop(index)
+                            snakes.remove(snake)
+                            break
+                        
+                if len(scores) > 0:
+                    if max(scores) > highscore:
+                        highscore = max(scores)
+                        generation = gens[snake]
+                        generation = generation[0]
+                        genHighscore = generation
+
+
+def test_winner(winner, n):
+    global rows, width, total_height,total_width, gen, highscore, genHighscore, win_nets
+    highscore = 0
+    genHighscore = 0
+
+    clock = pg.time.Clock()
+    snakes = []
+    snacks = []
+    frames = []
+    scores = []
+    nets = []
+    max_frames = int(rows*rows/2)
+    win = pg.display.set_mode((width, width))
+
+    for _ in range(n):
+        snake = Snake((5,5))
+        snakes.append(snake)
+        snacks.append(Cube(randomSnack(rows, snake)))
+        frames.append(0)
+        scores.append(0)
+        nets.append(winner)
+
+        if True:
+            while len(snakes) > 0:
+                #pg.time.delay(10) #Turn this on if you want the game to go slower
+                #clock.tick(10)
+                update_win_testwinners(win,snakes,snacks,scores)
+
+                for index, snake in enumerate(snakes):
+                    output = nets[index].activate(vision(snake,snacks[index]))
+
+                    snake.move(getDirAction(snake, output))
+                    if snake.body[0].pos == snacks[index].pos:
+                        snake.addCube()
+                        scores[index] += 1
+                        snacks[index] = Cube(randomSnack(rows, snake))
+                        frames[index] = 0
+                    
+                    frames[index] += 1
+                    if frames[index] >= 100 and len(snake.body) <= 5:
+                        frames[index] = max_frames
+
+                    for x in range(len(snake.body)):
+                        if snake.body[x].pos in list(map(lambda z:z.pos,snake.body[x+1:])) or frames[index] >= max_frames:
+                            frames.pop(index)
+                            snacks.pop(index)
+                            nets.pop(index)
+                            scores.pop(index)
+                            snakes.remove(snake)
+                            break
+                        elif snake.head.pos[0] < 0 or snake.head.pos[0] > (snake.rows - 1) or snake.head.pos[1] > (snake.rows - 1) or snake.head.pos[1] < 0:
+                            frames.pop(index)
+                            snacks.pop(index)
+                            nets.pop(index)
+                            scores.pop(index)
+                            snakes.remove(snake)
+                            break
+                        
+                if len(scores) > 0:
+                    if max(scores) > highscore:
+                        highscore = max(scores)
+
+
 
 def vision(snake, snack):
     global rows
@@ -486,7 +697,7 @@ def distWall(snake):
             dist[0] = abs(head_x - (rows-1))
         if (head_y - defaultDist) <= 0:
             dist[1] = abs(snake.head.pos[1] - 0)
-        if (head_y+defaultDist) >= (rows-1):
+        if (head_y + defaultDist) >= (rows-1):
             dist[2] = abs(head_y - (rows-1))
     elif snake.dirnx == -1:  
         if (head_x - defaultDist) <= 0:
@@ -547,10 +758,13 @@ def getDirAction(snake, output):
 
     return action
 
+
+
 if __name__ == '__main__':
     # Determine path to configuration file. This path manipulation is
     # here so that the script will run successfully regardless of the
     # current working directory.
+
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'config-feedforward.txt')
     run(config_path)
