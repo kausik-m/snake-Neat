@@ -197,11 +197,11 @@ def run(config_file):
     print('\nBest genome:\n{!s}'.format(winner))
 
     #Run the record breakers
-    run_winners()
+    #run_winners()
 
     #Test the best net x numbers of times 
-    #winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
-    #test_winner(winner_net,120)
+    winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
+    test_winner(winner_net,120)
 
     
 
@@ -217,7 +217,7 @@ def run_game(genomes, config):
     scores = []
     showGame = False
     max_frames = int(rows*rows/2)
-    #win = pg.display.set_mode((total_width, total_height))
+    win = pg.display.set_mode((total_width, total_height))
     i = 0
     j = 0
 
@@ -247,7 +247,7 @@ def run_game(genomes, config):
             while len(snakes) > 0:
                 if showGame:
                     #pg.time.delay(50) #Turn this on if you want the game to go slower
-                    #clock.tick(50)
+                    clock.tick(10)
                     update_win(win,snakes,snacks,gen,scores,False)
                 
                 for index, snake in enumerate(snakes):
@@ -264,7 +264,7 @@ def run_game(genomes, config):
                         frames[index] = 0
                         if ge[index].fitness > highscore:
                             showGame = True
-                            showGame = False
+                            #showGame = False
 
                     frames[index] += 1
                     if frames[index] >= 100 and len(snake.body) <= 5:
