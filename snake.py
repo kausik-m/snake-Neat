@@ -197,7 +197,7 @@ def run(config_file):
     print('\nBest genome:\n{!s}'.format(winner))
 
     #Run the record breakers
-    #run_winners()
+    run_winners()
 
     #Test the best net x numbers of times 
     #winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
@@ -623,7 +623,7 @@ def test_winner(winner, n):
                 #clock.tick(50)
                 update_win_testwinners(win,snakes,snacks,scores)
 
-                for index, snake in snakes:
+                for index, snake in enumerate(snakes):
                     output = nets[index].activate(vision(snake,snacks[index]))
 
                     print("O:"+str(output))
@@ -697,8 +697,8 @@ def run_winners():
     
         if len(snakes) == 6 or len(gens) == len(win_nets):
             while len(snakes) > 0:
-                #pg.time.delay(50)
-                #clock.tick(50)
+                pg.time.delay(50)
+                clock.tick(50)
                 update_win(win,snakes,snacks,gen,scores,True,gens)
 
                 for snake in snakes:
