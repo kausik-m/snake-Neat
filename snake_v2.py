@@ -9,7 +9,7 @@ import numpy as np
 vec = pg.math.Vector2
 
 # colours
-black = (0, 0, 0)
+Black = (0, 0, 0)
 red   = (255, 0, 0)
 green = (0,   255, 0)
 White = (255, 255, 255)
@@ -40,12 +40,20 @@ class Cube():
         self.dirny = dirny
         self.pos = (self.pos[0] + self.dirnx, self.pos[1] + self.dirny)
  
-    def draw(self, surface):
+    def draw(self, surface, eyes = False):
         dis = self.w // self.rows
         i = self.pos[0]
         j = self.pos[1]
  
         pg.draw.rect(surface, self.color, (i*dis+1,j*dis+1, dis-2, dis-2))
+        
+        if eyes:
+            centre = dis//2
+            radius = 3
+            circleMiddle = (i*dis+centre-radius,j*dis+8)
+            circleMiddle2 = (i*dis + dis -radius*2, j*dis+8)
+            pg.draw.circle(surface, Black, circleMiddle, radius)
+            pg.draw.circle(surface, Black, circleMiddle2, radius)
 
 class Snake():
     rows = rows
@@ -118,6 +126,9 @@ class Snake():
        
     def draw(self, surface):
         for i, c in enumerate(self.body):
+            if i ==0:
+                c.draw(surface, True)
+            else:
                 c.draw(surface)
 
 def randomSnack(rows, snake): 
@@ -136,9 +147,9 @@ def randomSnack(rows, snake):
 
 def drawGrid(win):
     global total_height, total_width, width, rows
-    pg.draw.line(win, black, (0,int(total_height/2)),(total_width,int(total_height/2)),2)
+    pg.draw.line(win, Black, (0,int(total_height/2)),(total_width,int(total_height/2)),2)
     for i in range(total_width//width):
-        pg.draw.line(win, black, (int(width*i),0),(int(width*i),total_height),2)
+        pg.draw.line(win, Black, (int(width*i),0),(int(width*i),total_height),2)
 
 def drawGridLine(win):
         global width, rows
@@ -156,7 +167,7 @@ def drawGridLine(win):
 def update_win(win, snakes, snacks, gen, scores, replay, gens = None):
     global rows, highscore, genHighscore
     #win.fill((103,155,0))
-    win.fill(black)
+    win.fill(Black)
     for snake in snakes:
         snake.draw(win)
     for snack in snacks:
@@ -200,7 +211,7 @@ def update_win(win, snakes, snacks, gen, scores, replay, gens = None):
 def update_win_testwinners(win, snakes, snacks, scores):
     global rows, highscore
     #win.fill((103,155,0))
-    win.fill(black)
+    win.fill(Black)
     for snake in snakes:
         snake.draw(win)
     for snack in snacks:
