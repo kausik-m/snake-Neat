@@ -11,7 +11,8 @@ vec = pg.math.Vector2
 # colours
 black = (0, 0, 0)
 red   = (255, 0, 0)
-
+green = (0,   255, 0)
+White = (255, 255, 255)
 win_nets     = {}
 highscore    = 0
 genHighscore = 0
@@ -23,7 +24,7 @@ total_height = 800
 pg.init()
 pg.display.set_caption("Snake AI")
 
-STAT_FONT = pg.font.SysFont("comicsans", 20)
+STAT_FONT = pg.font.SysFont("comicsans", 18)
 
 class Cube():
     rows = rows
@@ -52,7 +53,7 @@ class Snake():
     def __init__(self, pos):
         self.dirnx = 1
         self.dirny = 0
-        self.head = Cube((pos[0], pos[1]), self.dirnx, self.dirny)
+        self.head = Cube((pos[0], pos[1]), self.dirnx, self.dirny, red)
         self.body = []
         self.turns = {}
         self.body.append(self.head)
@@ -90,12 +91,13 @@ class Snake():
                 c.move(c.dirnx,c.dirny)
                     
     def reset(self, pos):
-        self.head = Cube(pos)
+        self.dirnx = 0
+        self.dirny = 1
+        self.head = Cube(pos, self.dirnx, self.dirny, red)
         self.body = []
         self.body.append(self.head)
         self.turns = {}
-        self.dirnx = 0
-        self.dirny = 1
+
  
     def addCube(self):
         tail = self.body[-1]
@@ -112,6 +114,7 @@ class Snake():
  
         self.body[-1].dirnx = dx
         self.body[-1].dirny = dy
+        self.body[-1].color = red
        
     def draw(self, surface):
         for i, c in enumerate(self.body):
@@ -137,15 +140,29 @@ def drawGrid(win):
     for i in range(total_width//width):
         pg.draw.line(win, black, (int(width*i),0),(int(width*i),total_height),2)
 
+def drawGridLine(win):
+        global width, rows
+        sizeBtwn = width // rows
+
+        x = 0
+        y = 0
+        for l in range(rows):
+            x = x + sizeBtwn
+            y = y + sizeBtwn
+
+            pg.draw.line(win, White, (x,0),(x,width))
+            pg.draw.line(win, White, (0,y),(width,y))
 
 def update_win(win, snakes, snacks, gen, scores, replay, gens = None):
     global rows, highscore, genHighscore
-    win.fill((103,155,0))
+    #win.fill((103,155,0))
+    win.fill(black)
     for snake in snakes:
         snake.draw(win)
     for snack in snacks:
         snack.draw(win)
     # drawGrid(win)
+    drawGridLine(win)
 
     
     for snake in snakes:
@@ -182,12 +199,14 @@ def update_win(win, snakes, snacks, gen, scores, replay, gens = None):
 
 def update_win_testwinners(win, snakes, snacks, scores):
     global rows, highscore
-    win.fill((103,155,0))
+    #win.fill((103,155,0))
+    win.fill(black)
     for snake in snakes:
         snake.draw(win)
     for snack in snacks:
         snack.draw(win)
     # drawGrid(win)
+    drawGridLine(win)
 
     
     for snake in snakes:
@@ -219,8 +238,6 @@ class NEATStatistics:
         self.max_fitness = []
         self.avg_fitness = []
         self.min_fitness = []
-
-
 
 def plot_performance(stats):
     generations = stats.generation
@@ -260,6 +277,7 @@ def run(config_file):
     p.add_reporter(custom_reporter)
 
     # Run for up to x generations.
+    pg.display.set_caption("Snake AI- Training")
     winner = p.run(run_game, 100)
 
     # show final stats
@@ -267,18 +285,21 @@ def run(config_file):
     
 
     #Run the record breakers
+    pg.display.set_caption("Snake AI- Run All Winners/gen")
     run_winners()
 
     #Test the best net x numbers of times 
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
-    test_winner(winner_net,120)
+    pg.display.set_caption("Snake AI- Run Best Winner")
+    test_winner(winner_net,100)
     
     # Plot the performance
+    
     plot_performance(stats_1)
 
 def run_game(genomes, config):
     global rows, width, total_height,total_width, gen, highscore, genHighscore, win_nets
-    clock = pg.time.Clock()
+    clock = pg.time.Clock() 
     ge = []
     nets = []
     snakes = []
@@ -298,7 +319,7 @@ def run_game(genomes, config):
         nets.append(net)
         snake = Snake((5,5))
         snakes.append(snake)
-        snacks.append(Cube(randomSnack(rows, snake)))
+        snacks.append(Cube(randomSnack(rows, snake), color = green))
         ge.append(genome)
         frames.append(0)
         scores.append(genome.fitness)
@@ -307,8 +328,9 @@ def run_game(genomes, config):
             while len(snakes) > 0:
                 if showGame:
                     #pg.time.delay(10) #Turn this on if you want the game to go slower
-                    #clock.tick(10) 
+                    #clock.tick(50) 
                     update_win(win,snakes,snacks,gen,scores,False)
+                    clock.tick(50)
                     
                 
                 for index, snake in enumerate(snakes):
@@ -320,11 +342,11 @@ def run_game(genomes, config):
                         snake.addCube()
                         ge[index].fitness += 1
                         scores[index] = ge[index].fitness
-                        snacks[index] = Cube(randomSnack(rows, snake))
+                        snacks[index] = Cube(randomSnack(rows, snake), color = green)
                         frames[index] = 0
                         if ge[index].fitness > highscore:
                             showGame = True
-                            showGame = False #to disable display. It may not work even if enabled.
+                            #showGame = False #to disable display. It may not work even if enabled.
 
                     frames[index] += 1
                     if frames[index] >= 100 and len(snake.body) <= 5:
@@ -375,7 +397,7 @@ def run_winners():
     for net in win_nets:
         snake = Snake((5,5))
         snakes.append(snake)
-        snacks.append(Cube(randomSnack(rows, snake)))
+        snacks.append(Cube(randomSnack(rows, snake), color = green))
         frames.append(0)
         scores.append(0)
         nets.append(net)
@@ -387,6 +409,7 @@ def run_winners():
                 #pg.time.delay(10) 
                 #clock.tick(10) #Turn this on if you want the game to go slower
                 update_win(win,snakes,snacks,gen,scores,True,gens)
+                clock.tick(50)
                 
                 for index, snake in enumerate(snakes):
                     output = nets[index].activate(vision(snake,snacks[index]))
@@ -395,7 +418,7 @@ def run_winners():
                     if snake.body[0].pos == snacks[index].pos:
                         snake.addCube()
                         scores[index] += 1
-                        snacks[index] = Cube(randomSnack(rows, snake))
+                        snacks[index] = Cube(randomSnack(rows, snake), color = green)
                         frames[index] = 0
                     
                     frames[index] += 1
@@ -443,7 +466,7 @@ def test_winner(winner, n):
     for _ in range(n):
         snake = Snake((5,5))
         snakes.append(snake)
-        snacks.append(Cube(randomSnack(rows, snake)))
+        snacks.append(Cube(randomSnack(rows, snake), color = green))
         frames.append(0)
         scores.append(0)
         nets.append(winner)
@@ -451,8 +474,9 @@ def test_winner(winner, n):
         if True:
             while len(snakes) > 0:
                 #pg.time.delay(10) #Turn this on if you want the game to go slower
-                #clock.tick(10)
+                #clock.tick(50)
                 update_win_testwinners(win,snakes,snacks,scores)
+                clock.tick(50)
 
                 for index, snake in enumerate(snakes):
                     output = nets[index].activate(vision(snake,snacks[index]))
@@ -461,7 +485,7 @@ def test_winner(winner, n):
                     if snake.body[0].pos == snacks[index].pos:
                         snake.addCube()
                         scores[index] += 1
-                        snacks[index] = Cube(randomSnack(rows, snake))
+                        snacks[index] = Cube(randomSnack(rows, snake), color = green)
                         frames[index] = 0
                     
                     frames[index] += 1
